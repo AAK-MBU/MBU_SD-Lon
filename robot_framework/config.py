@@ -21,9 +21,13 @@ SERVICE_NOW_API_PROD_USER = "service_now_prod_user"
 # ----------------------
 
 # The name of the job queue (if any)
-QUEUE_NAME = None
+QUEUE_NAME = "per.sdloen"  # Specific queue name added by process arguments
 
 # The limit on how many queue elements to process
 MAX_TASK_COUNT = 100
 
 # ----------------------
+USERNAME = "SvcRpaMBU002"
+SHAREPOINT_SITE_URL = "https://aarhuskommune.sharepoint.com/teams/MBURPA-TestafSD-ln"
+DOCUMENT_LIBRARY = "Delte dokumenter"
+TEMP_PATH = R"C:\SDLøn"

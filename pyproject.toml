@@ -3,8 +3,8 @@ requires = ["setuptools>=65.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "robot_framework"
-version = "0.0.2"
+name = "SDLon"
+version = "0.0.1"
 authors = [
   { name="MBU", email="rpa@mbu.aarhus.dk" },
 ]
@@ -12,22 +12,14 @@ readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
 ]
+license = "MIT"
 dependencies = [
     "OpenOrchestrator == 1.*",
-    "Pillow == 10.*",
-    "openpyxl >= 3.1.2",
-    "pyodbc >= 5.1.0",
-    "requests_ntlm >= 1.2.0",
-    "python-dateutil == 2.9.*",
-    "cryptography >= 43.0.0",
-    "office365-rest-python-client",
-    "uiautomation",
-    "requests_ntlm >= 1.2.0",
-    "pandas >= 2.2.3",
-    "itk-dev-shared-components == 2.9.0"
+    "Pillow",
+    "itk-dev-shared-components",
+    "mbu-dev-shared-components",
 ]
 
 [project.optional-dependencies]
