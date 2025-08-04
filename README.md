@@ -1,61 +1,34 @@
-# Robot-Framework V3
+# Robot til at fremfinde og notificere om fejl i ansættelser i SD Løn
 
-This repo is meant to be used as a template for robots made for [OpenOrchestrator](https://github.com/itk-dev-rpa/OpenOrchestrator).
+Dette projekt fokuserer på at fremfinde ansættelser der er registreret med fejl, fx i overenskomster eller løntillæg. Herefter notificerer robotten relevante modtagere gennem mails eller ServiceNow sager
 
-## Quick start
+## Procesoversigt 
+Robotten behandler følgende fejltyper
 
-1. To use this template simply use this repo as a template (see [Creating a repository from a template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)).
-__Don't__ include all branches.
+1. **Inspirationsansættelser ikke på institutionskode "XC"** <br>
+    Inspirationsansættelser skal altid være tilknyttet en XC institutionskode. Inspirationsansættelser foregår på overenskomsten 47302. Processen tjekker om der er nogle aktive ansættelser på overenskomst 47302 som ikke er på XC institutionskode. 
 
-2. Go to `robot_framework/__main__.py` and choose between the linear framework or queue based framework.
+2. **Mangler A/B forhåndsaftale** <br>
+    En række forhåndsaftaler (med løntillæg) er defineret i par, og skal altid fremgå i par. Dvs. at man ikke kan have en A-aftale uden også at skulle have en B-aftale og omvendt. Disse par er prædefinerede. Processen tjekker om nogle aktive ansættelser har en aftale fra disse prædefinerede par, uden at have den definerede "partner". <br>
 
-3. Implement all functions in the files:
-    * `robot_framework/initialize.py`
-    * `robot_framework/reset.py`
-    * `robot_framework/process.py`
+3. **Overenskomster i hhv. undervisningsenheder og dagtilbud** <br>
+    I undervisningsenheder må der ikke være ansættelser på overenskomsterne 46001 og 46101. I dagtilbud må der ikke være ansættelser på overenskomsterne 76001, 76101 og 77001. <br> 
+    *(Flere overenskomster bliver tilføjet løbende, ligesom en foreløbig liste af accepterede overenskomster også er under udarbejdelse).*
 
-4. Change `config.py` to your needs.
+4. **Ledere uden udløbsdato på anciennitet** <br>
+    Ledere skal ansættes med en "låst" anciennitetsdato (dvs. 9999-12-31). Denne proces tjekker om ledere (defineret ved oversenskomster 45082, 45081, 46901, 45101 og 47201) har anden anciennitetsdato end den låste dato. 
 
-5. Fill out the dependencies in the `pyproject.toml` file with all packages needed by the robot.
+## Notifikationsmuligheder
+Robotten notificerer relevante modtagere om de fundne fejl. Her vælges mellem følgende muligheder
 
-6. Feel free to add more files as needed. Remember that any additional python files must
-be located in the folder `robot_framework` or a subfolder of it.
+1. **Mail** <br>
+    Robotten sender en mail med oplysninger om fejlen. Mailen kan sendes til en fastsat person eller til en AF fællespostkasse.
 
-When the robot is run from OpenOrchestrator the `main.py` file is run which results
-in the following:
-1. The working directory is changed to where `main.py` is located.
-2. A virtual environment is automatically setup with the required packages.
-3. The framework is called passing on all arguments needed by [OpenOrchestrator](https://github.com/itk-dev-rpa/OpenOrchestrator).
+2. **ServiceNow sag** <br>
+    Under udarbejdelse
 
-## Requirements
-Minimum python version 3.10
 
 ## Flow
-
-This framework contains two different flows: A linear and a queue based.
-You should only ever use one at a time. You choose which one by going into `robot_framework/__main__.py`
-and uncommenting the framework you want. They are both disabled by default and an error will be
-raised to remind you if you don't choose.
-
-### Linear Flow
-
-The linear framework is used when a robot is just going from A to Z without fetching jobs from an
-OpenOrchestrator queue.
-The flow of the linear framework is sketched up in the following illustration:
-
-![Linear Flow diagram](Robot-Framework.svg)
-
-### Queue Flow
-
-The queue framework is used when the robot is doing multiple bite-sized tasks defined in an
-OpenOrchestrator queue.
-The flow of the queue framework is sketched up in the following illustration:
-
-![Queue Flow diagram](Robot-Queue-Framework.svg)
-
-## Linting and Github Actions
-
-This template is also setup with flake8 and pylint linting in Github Actions.
-This workflow will trigger whenever you push your code to Github.
-The workflow is defined under `.github/workflows/Linting.yml`.
-
+- Robotten bliver startet gennem en trigger i OpenOrchestrator, som angiver hvilken process der skal køres.
+- Herefter tjekker robotten, hvilke handlinger robotten skal foretage, som angivet i den eksterne styretabel.
+- Robotten aktiverer processen og tjekker om der er nogle aktive ansættelser med den pågældende fejl.
