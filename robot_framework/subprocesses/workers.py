@@ -11,11 +11,10 @@ from robot_framework.worker_data.KV2_data import tillaeg_pairs
 from robot_framework.subprocesses.helper_functions import find_pair_info  # , find_match_ovk
 
 
-def send_mail(orchestrator_connection: OrchestratorConnection, process_type: str, process_controls: dict, queue_element: QueueElement):
+def send_mail(orchestrator_connection: OrchestratorConnection, process_type: str, notification_receiver: str, queue_element: QueueElement):
     """Function to send email to inputted receiver"""
-    receiver = process_controls["worker_data"]
-    email_body = construct_worker_text(process_type=process_type, queue_element=queue_element)
-    email_subject = process_controls["process_description"]
+    receiver = notification_receiver
+    email_body, email_subject = construct_worker_text(process_type=process_type, queue_element=queue_element)
 
     send_email(
         receiver=receiver,
@@ -34,6 +33,7 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
     """Function to construct text for different the processes"""
     element_data = json.loads(queue_element.data)
     text = ""
+    subject = ""
 
     person_id = element_data.get("Tjenestenummer", None)
     person_name = element_data.get("Navn", None)
@@ -73,6 +73,8 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
             + "Ved rettelse af denne fejl skal lønsammensætningen kontrolleres. Ved spørgsmål, kontakt da Personale."
         )
 
+        subject = "Manglende tillægsnummer i ansættelse"
+
     if process_type == "KV3" or process_type == "KV3-DEV":
 
         afdtype_txt = element_data["afdtype_txt"]
@@ -89,6 +91,8 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
             # + f"<p>Forventet overenskomst: {exp_ovk}</p>"
         )
 
+        subject = "Fejl i SD-overenskomst"
+
     if process_type == "KV4":
 
         text = (
@@ -100,7 +104,9 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
             + f"<p>Registreret overenskomst: {overenskomst}</p>"
         )
 
-    return text
+        subject = "Manglende låst anciennitet på leder"
+
+    return text, subject
 
 
 WORKER_MAP = {

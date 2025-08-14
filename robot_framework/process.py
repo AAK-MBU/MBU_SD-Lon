@@ -4,8 +4,6 @@ import json
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from OpenOrchestrator.database.queues import QueueElement
 
-from robot_framework.config import USERNAME
-from robot_framework.subprocesses.helper_functions import fetch_files
 from robot_framework.subprocesses.workers import WORKER_MAP
 
 
@@ -17,30 +15,20 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     # Load arguments and creds
     oc_args = json.loads(orchestrator_connection.process_arguments)
     process_type = oc_args['process'].upper()
-
-    creds = orchestrator_connection.get_credential(USERNAME)
-    username = creds.username
-    password = creds.password
-
-    # Fetch control table for workers
-    control_table = fetch_files(username, password)
-    process_controls = control_table.get(process_type, None)
-
-    if not process_controls:
-        raise ValueError(f"No control defined in control table for process {process_type}")
+    notification_type = oc_args['notification_type']
+    notification_receiver = oc_args['notification_receiver']
 
     # Find and apply worker
-    worker_type = process_controls["worker_type"]
-    worker = WORKER_MAP.get(worker_type, None)
+    worker = WORKER_MAP.get(notification_type, None)
     if not worker:
-        raise ValueError(f"No worker defined for process {worker_type}")
+        raise ValueError(f"No worker defined for process {notification_type}")
 
-    orchestrator_connection.log_trace(f"Handling process with {worker_type = }")
+    orchestrator_connection.log_trace(f"Handling process with {notification_type = }")
 
     worker(
         orchestrator_connection=orchestrator_connection,
         process_type=process_type,
-        process_controls=process_controls,
+        notification_receiver=notification_receiver,
         queue_element=queue_element
     )
 

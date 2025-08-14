@@ -27,7 +27,4 @@ QUEUE_NAME = "per.sdloen"  # Specific queue name added by process arguments
 MAX_TASK_COUNT = 100
 
 # ----------------------
-USERNAME = "SvcRpaMBU002"
-SHAREPOINT_SITE_URL = "https://aarhuskommune.sharepoint.com/teams/MBURPA-TestafSD-ln"
-DOCUMENT_LIBRARY = "Delte dokumenter"
 TEMP_PATH = R"C:\SDLøn"
