@@ -6,6 +6,7 @@ from datetime import datetime
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from robot_framework.sql_scripts.kvalitetskontroller import PROCESS_PROCEDURE_DICT
 from robot_framework.config import QUEUE_NAME
+from robot_framework.subprocesses.helper_functions import format_item
 
 
 def initialize(orchestrator_connection: OrchestratorConnection) -> None:
@@ -57,7 +58,7 @@ def get_items(orchestrator_connection: OrchestratorConnection):
             references=[
                 f"{process}_{datetime.now().strftime('%d%m%y')}_{i+1}" for i in range(len(items))
             ],
-            data = [json.dumps(item, ensure_ascii=False) for item in items],
+            data = [json.dumps(format_item(item), ensure_ascii=False) for item in items],
             created_by="SD-lon_robot"
         )
         orchestrator_connection.log_trace(f"Populated queue with {len(items)} items.")
