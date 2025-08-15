@@ -10,45 +10,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout main branch
-        uses: actions/checkout@v3
-        with:
-          ref: main
-          fetch-depth: 2 # We need to fetch at least two commits for comparison
-
-      - name: Get version from main
-        id: get_main_version
-        run: |
-          VERSION_MAIN=$(cat pyproject.toml | grep '^version =' | awk -F'"' '{print $2}')
-          echo "VERSION_MAIN=$VERSION_MAIN" >> $GITHUB_ENV
-
       - name: Checkout PR branch
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 2
+          fetch-depth: 0  # Full history needed for diff
+
+      - name: Get list of changed files
+        id: changed-files
+        run: |
+          git fetch origin main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+          echo "$CHANGED_FILES" > changed_files.txt
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
+
+      - name: Check if relevant files changed
+        id: check-relevant
+        run: |
+          if grep -qE '^main\.py$|^robot_framework/' changed_files.txt; then
+            echo "RELEVANT_CHANGES=true" >> $GITHUB_ENV
+          else
+            echo "RELEVANT_CHANGES=false" >> $GITHUB_ENV
+          fi
+
+      - name: Get version from main
+        if: env.RELEVANT_CHANGES == 'true'
+        run: |
+          git checkout origin/main
+          VERSION_MAIN=$(grep '^version =' pyproject.toml | awk -F'"' '{print $2}')
+          echo "VERSION_MAIN=$VERSION_MAIN" >> $GITHUB_ENV
 
       - name: Get version from PR
-        id: get_pr_version
+        if: env.RELEVANT_CHANGES == 'true'
         run: |
-          VERSION_PR=$(cat pyproject.toml | grep '^version =' | awk -F'"' '{print $2}')
+          git checkout ${{ github.head_ref }}
+          VERSION_PR=$(grep '^version =' pyproject.toml | awk -F'"' '{print $2}')
           echo "VERSION_PR=$VERSION_PR" >> $GITHUB_ENV
 
       - name: Compare versions
+        if: env.RELEVANT_CHANGES == 'true'
         run: |
           if [ "$VERSION_MAIN" = "$VERSION_PR" ]; then
             echo "Version in pyproject.toml not updated. Please update."
-          echo "Version on main: $VERSION_MAIN"
-          echo "Version on PR: $VERSION_PR"
             exit 1
           fi
           if [ "$(printf '%s\n' "$VERSION_MAIN" "$VERSION_PR" | sort -V | head -n1)" = "$VERSION_PR" ]; then
             echo "Version in PR is older than version in main. Failing the check."
-            echo "Version on main: $VERSION_MAIN"
-            echo "Version on PR: $VERSION_PR"
             exit 1
           fi
-          echo "Version numbers are different and PR version is not older. Check passed."
-          echo "Version on main: $VERSION_MAIN"
-          echo "Version on PR: $VERSION_PR"
-          
+          echo "Version check passed."
