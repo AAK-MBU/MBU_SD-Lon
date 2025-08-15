@@ -1,5 +1,13 @@
 """Module for helper functions"""
 import pyodbc
+from datetime import date
+
+
+def format_item(item: dict):
+    return {
+        key: value.strftime("%d-%m-%Y") if isinstance(value, date) else value
+        for key, value in item.items()
+    }
 
 
 def find_match_ovk(ovk: str):
