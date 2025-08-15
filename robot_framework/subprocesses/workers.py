@@ -48,10 +48,14 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
             "<h4>Følgende inspirationsansættelse er registreret på en XA SD-institutionskode:</h4>"
             + f"<p>Tjenestenummer: {person_id}</p>"
             + f"<p>Navn: {person_name}</p>"
-            + f"<p>Afdeling: {afdeling} ({enhedsnavn})</p>"
+            + f"<p>Afdeling: {afdeling}</p>"
             + f"<p>SD institutionskode: {sd_inst_kode}</p>"
             + f"<p>Registreret overenskomst: {overenskomst}</p>"
         )
+
+        subject = "Inspirationsansættelse på XA institution"
+
+        return text, subject
 
     if process_type == "KV2":
         # Get element info

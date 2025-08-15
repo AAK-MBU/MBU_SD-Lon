@@ -22,9 +22,10 @@ def kv1(overenskomst: int, orchestrator_connection: OrchestratorConnection):
 
     sql = f"""
         SELECT
-            AnsættelsesID, Institutionskode, Lønklasse, Overenskomst, Startdato, Slutdato, Statuskode
-        FROM
-            [Personale].[sd_magistrat].[Ansættelse_mbu]
+            ans.Tjenestenummer, ans.Overenskomst, ans.Afdeling, ans.Institutionskode, perstam.Navn, ans.Startdato, ans.Slutdato, ans.Statuskode
+        FROM [Personale].[sd_magistrat].[Ansættelse_mbu] ans
+            right join [Personale].[sd].[personStam] perstam
+                on ans.CPR = perstam.CPR
         WHERE
             Slutdato > getdate() and Startdato <= getdate()
             and Overenskomst={overenskomst}
