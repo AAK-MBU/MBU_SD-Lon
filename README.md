@@ -3,8 +3,8 @@
 [Skriv noget mere om hvor fejlene kommer fra. "Manuelt registrerede fejl i SD Løn". Hvad. Hvorfor. Hvordan]
 Dette projekt fokuserer på at fremfinde ansættelser der er registreret med fejl, fx i overenskomster eller løntillæg. Herefter notificerer robotten relevante modtagere gennem mails eller ServiceNow sager
 
-## Procesoversigt 
-Robotten behandler følgende fejltyper
+## Kvalitetskontroller 
+Robotten foretager følgende kvalitetskontroller af igangværende ansættelser
 
 1. **Inspirationsansættelser ikke på institutionskode "XC"** <br>
     Inspirationsansættelser skal altid være tilknyttet en XC institutionskode. Inspirationsansættelser foregår på overenskomsten 47302. Processen tjekker om der er nogle aktive ansættelser på overenskomst 47302 som ikke er på XC institutionskode. 
@@ -31,16 +31,16 @@ eller
     Under udarbejdelse
 
 ## Flow og kodestruktur
-Robotten bliver startet gennem en trigger i OpenOrchestrator, som angiver hvilken [fejltype](#procesoversigt) der skal køres. Denne process er koblet op på en bestemt [notifikationstype](#notifikationsmuligheder), som er angivet i en ekstern styretabel.<br>
+Robotten bliver startet gennem en trigger i OpenOrchestrator, hvor trigger properties angiver [kvalitetskontrol](#kvalitetskontroller), [notifikationstype](#notifikationsmuligheder) og modtager. Herefter identificerer robotten fejl indenfor fejltypen og konstruerer og sender notifikationer for hver fundet fejl. Hver trigger er defineret med et tidsinterval, som den bliver genaktiveret ved, <br>
 Al koden til robotten ligger i [robot_framework](./robot_framework/). <br>
 Koden bliver kørt i [queue_framework](robot_framework/queue_framework.py) og følger følgende process:
-- Processen [initialiseres](/robot_framework/initialize.py) for bestemt proces <br>
-    Den valgte proces køres ([kode](/robot_framework/sql_scripts/kvalitetskontroller.py)) og danner kø-elementer.
-- Hvert kø-element processeres ([kode](/robot_framework/process.py)) og sender notifikationer til modtagere. <br>
-Her tjekker robotten, hvilken [notifikation](#notifikationsmuligheder) robotten skal foretage, samt modtager på notifikationen, som angivet i den eksterne styretabel.
+- Processen initialiseres i [initialize.py](/robot_framework/initialize.py) for den angivne [kvalitetskontrol](#kvalitetskontroller) <br>
+    Den valgte kontrol køres i [kvalitetskontroller.py](/robot_framework/sql_scripts/kvalitetskontroller.py) og danner kø-elementer baseret på de fundne fejl.
+- Hvert kø-element processeres i [process.py](/robot_framework/process.py), hvor notifikationen bliver afsendt. <br>
 
 De forskellige processer er struktureret under [kvailitetskontroller.py](/robot_framework/sql_scripts/kvalitetskontroller.py), hvor ét eller flere steps gennemgås for at samle de relevante items for processen.
 
 De forskellige notifikationsmuligheder er struktureret under [workers.py](/robot_framework/subprocesses/workers.py), og aktiveres som angivet i styretabellen.
 
-!(flows.png)
+
+<img src="flow.png" alt="Flow Diagram" style="width:100%;">
