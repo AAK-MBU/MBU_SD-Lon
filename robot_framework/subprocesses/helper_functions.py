@@ -47,7 +47,7 @@ def find_pair_info(data: dict, number: int):
 
 def get_items_from_query(connection_string, query: str):
     """Executes given sql query and returns rows from its SELECT statement"""
-
+    result = []
     try:
         with pyodbc.connect(connection_string) as conn:
             with conn.cursor() as cursor:
@@ -67,11 +67,14 @@ def get_items_from_query(connection_string, query: str):
     except pyodbc.Error as e:
         print(f"Database error: {str(e)}")
         print(f"{connection_string}")
+        raise e
     except ValueError as e:
         print(f"Value error: {str(e)}")
+        raise e
     # pylint: disable-next = broad-exception-caught
     except Exception as e:
         print(f"An unexpected error occurred: {str(e)}")
+        raise e
 
     if len(result) == 0:
         return None
