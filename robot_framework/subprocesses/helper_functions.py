@@ -1,21 +1,22 @@
 """Module for helper functions"""
-import pyodbc
 from datetime import date
+import pyodbc
 
 
 def format_item(item: dict):
+    """Format dates in dict, e.g. for json parsing"""
     return {
         key: value.strftime("%d-%m-%Y") if isinstance(value, date) else value
         for key, value in item.items()
     }
 
 
-def find_match_ovk(ovk: str):
-    """To find matching overenskomst, maybe?"""
-    # Some lookup
-    match_ovk = ""  
+# def find_match_ovk(ovk: str):
+#     """To find matching overenskomst, maybe?"""
+#     # Some lookup
+#     match_ovk = ""  
 
-    return match_ovk
+#     return match_ovk
 
 
 def find_pair_info(data: dict, number: int):

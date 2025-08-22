@@ -1,3 +1,5 @@
+"""Data for KV2 process"""
+
 tillaeg_pairs = [
     {'ovk': 43011, 'pair': (182543, 184171),
      'pair_names': ('BU3011-O-026A-Kompleksitet, adm.l', 'BU3011-O-026B-Kompleksitet, adm.l')},

@@ -1,6 +1,6 @@
 """Functions that defines errors to be handled by the robot"""
-import pandas as pd
 import json
+import pandas as pd
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
@@ -140,7 +140,7 @@ def kv3(accept_ovk_dag: tuple, accept_ovk_skole: tuple, orchestrator_connection:
 
     # Load department types from LIS stamdata
     lis_stamdata = lis_enheder(connection_string=connection_string_mbu, afdtype=(2, 3, 4, 5, 11, 13))
-    losid_tuple = tuple([i['losid'] for i in lis_stamdata])
+    losid_tuple = tuple(i['losid'] for i in lis_stamdata)
 
     # Load corresponding SD department codes
     sd_departments = sd_enheder(losid_tuple=losid_tuple, connection_string=connection_string_faelles)
@@ -191,7 +191,7 @@ def kv3_dev(accept_ovk_dag: tuple, accept_ovk_skole: tuple, orchestrator_connect
 
     # Load department types from LIS stamdata
     lis_stamdata = lis_enheder(connection_string=connection_string_mbu, afdtype=(2, 3, 4, 5, 11, 13))
-    losid_tuple = tuple([i['losid'] for i in lis_stamdata])
+    losid_tuple = tuple(i['losid'] for i in lis_stamdata)
 
     # Load corresponding SD department codes
     sd_departments = sd_enheder(losid_tuple=losid_tuple, connection_string=connection_string_faelles)

@@ -6,8 +6,7 @@ from itk_dev_shared_components.smtp.smtp_util import send_email
 from OpenOrchestrator.database.queues import QueueElement
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
-# from robot_framework.worker_data.KV2_data import PAIRS as KV2_PAIRS
-from robot_framework.worker_data.KV2_data import tillaeg_pairs
+from robot_framework.worker_data.kv2_data import tillaeg_pairs
 from robot_framework.subprocesses.helper_functions import find_pair_info  # , find_match_ovk
 
 
@@ -89,7 +88,7 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
 
         subject = "Manglende tillægsnummer i ansættelse"
 
-    if process_type == "KV3" or process_type == "KV3-DEV":
+    if process_type in ("KV3", "KV3-DEV"):
 
         afdtype_txt = element_data["afdtype_txt"]
         # exp_ovk = find_match_ovk(overenskomst)
@@ -121,7 +120,7 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
             + f"<p>Du kan finde vejledningen <a href={instruction_link}>her</a>"
             + "<p>Bliver datoen ikke rettet til 31.12.9999, vil lederens grundlønstrin stige med et løntrin hvert år. <br>"
             + "OBS hvis der er tilknyttet et grundlønstillæg til stillingen skal du huske at oprette dette manuelt (måske er tillægget allerede oprettet, se lønsammensætning)."
-        )  
+        )
 
         subject = "Manglende låst anciennitet på leder"
 
