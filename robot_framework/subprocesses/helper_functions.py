@@ -62,8 +62,6 @@ def get_items_from_query(connection_string, query: str):
                 # Convert to list of dictionaries
                 result = [dict(zip(columns, row)) for row in rows]
 
-                cursor.close()
-                conn.close()
     except pyodbc.Error as e:
         print(f"Database error: {str(e)}")
         print(f"{connection_string}")
