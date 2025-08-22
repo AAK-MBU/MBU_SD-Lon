@@ -14,7 +14,7 @@ def format_item(item: dict):
 # def find_match_ovk(ovk: str):
 #     """To find matching overenskomst, maybe?"""
 #     # Some lookup
-#     match_ovk = ""  
+#     match_ovk = ""
 
 #     return match_ovk
 
