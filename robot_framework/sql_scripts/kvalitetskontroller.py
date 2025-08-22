@@ -1,5 +1,6 @@
 """Functions that defines errors to be handled by the robot"""
 import pandas as pd
+import json
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
@@ -33,8 +34,16 @@ def kv1(overenskomst: int, orchestrator_connection: OrchestratorConnection):
             and Institutionskode!='XC'
     """
 
+    oc_args = json.loads(orchestrator_connection.process_arguments)
+    receiver = oc_args.get("notification_receiver", None).upper()
+    af_receiver = receiver == "AF"
+
     connection_string = orchestrator_connection.get_constant("FaellesDbConnectionString").value
     items = get_items_from_query(connection_string, sql)
+    if items and af_receiver:
+        item_df = pd.DataFrame(items).astype({'LOSID': int}, errors="ignore")
+
+        items = combine_with_af_email(orchestrator_connection=orchestrator_connection, item_df=item_df)
 
     return items
 
@@ -160,11 +169,6 @@ def kv3(accept_ovk_dag: tuple, accept_ovk_skole: tuple, orchestrator_connection:
     # Collect ansættelser with wrong overenskomst
     items = kv3_1(connection_str=connection_string_faelles, skole_afd=skole_afd, dagtilbud_afd=dagtilbud_afd, accept_ovk_skole=accept_ovk_skole, accept_ovk_dag=accept_ovk_dag)
     items_df = pd.DataFrame(items)
-
-    # # Get AF emails (probably just send to lønservice)
-    # af_email = af_losid(connection_str=connection_string_mbu)
-    # af_email_df = pd.DataFrame(af_email)
-    # combined_df = pd.merge(left=combined_df, right=af_email_df, on="LOSID")
 
     # Combine with other information
     combined_df = pd.merge(left=combined_df, right=items_df, left_on='SDafdID', right_on='Afdeling')
@@ -297,6 +301,24 @@ def af_losid(connection_str: str):
     return af_email_kobling
 
 
+def combine_with_af_email(orchestrator_connection: OrchestratorConnection, item_df: pd.DataFrame):
+    """Combines items with AF emails from LIS database"""
+
+    connection_string_mbu = orchestrator_connection.get_constant("DbConnectionString").value
+
+    af_email = af_losid(connection_str=connection_string_mbu)
+    af_email_df = pd.DataFrame(af_email).astype({'LOSID': int}, errors="ignore")
+    combined_df = pd.merge(left=item_df, right=af_email_df, on="LOSID")
+
+    lis_dep = lis_enheder(connection_string=connection_string_mbu)
+    lis_dep_df = pd.DataFrame(lis_dep).rename(columns={'losid': 'LOSID'}).astype({'LOSID': int}, errors="ignore")
+    combined_df = pd.merge(left=combined_df, right=lis_dep_df, on="LOSID")
+
+    items = list(combined_df.T.to_dict().values())
+
+    return items
+
+
 def kv3_1_dev(connection_str: str, skole_afd: tuple, dagtilbud_afd: tuple, accept_ovk_dag: tuple, accept_ovk_skole: tuple):
     """Get wrong overenskomst in skole and dagtilbud respectively"""
     accept_dag_str = f"and Overenskomst not in {accept_ovk_dag}" if len(accept_ovk_dag) != 0 else ""
@@ -366,8 +388,6 @@ def kv4(orchestrator_connection: OrchestratorConnection, leder_overenskomst: tup
     CASE: Ledere som mangler lås på anciennitetsdato.
     """
 
-    connection_string_mbu = orchestrator_connection.get_constant("DbConnectionString").value
-    connection_string_faelles = orchestrator_connection.get_constant("FaellesDbConnectionString").value
     sql = f"""
         SELECT
             ans.Tjenestenummer, ans.Overenskomst, ans.Afdeling, perstam.Navn, ans.Institutionskode,
@@ -384,18 +404,18 @@ def kv4(orchestrator_connection: OrchestratorConnection, leder_overenskomst: tup
             and ans.Startdato <= GETDATE() and ans.Slutdato > GETDATE() and ans.Statuskode in ('1', '3', '5')
             and cast(ans.Anciennitetsdato as date) != '9999-12-31'
     """
-    items = get_items_from_query(connection_string=connection_string_faelles, query=sql)
-    item_df = pd.DataFrame(items).astype({'LOSID': int}, errors="ignore")
 
-    af_email = af_losid(connection_str=connection_string_mbu)
-    af_email_df = pd.DataFrame(af_email).astype({'LOSID': int}, errors="ignore")
-    combined_df = pd.merge(left=item_df, right=af_email_df, on="LOSID")
+    oc_args = json.loads(orchestrator_connection.process_arguments)
+    receiver = oc_args.get("notification_receiver", None).upper()
+    af_receiver = receiver == "AF"
 
-    lis_dep = lis_enheder(connection_string=connection_string_mbu)
-    lis_dep_df = pd.DataFrame(lis_dep).rename(columns={'losid': 'LOSID'}).astype({'LOSID': int}, errors="ignore")
-    combined_df = pd.merge(left=combined_df, right=lis_dep_df, on="LOSID")
+    connection_string = orchestrator_connection.get_constant("FaellesDbConnectionString").value
+    items = get_items_from_query(connection_string, sql)
+    if items and af_receiver:
+        item_df = pd.DataFrame(items).astype({'LOSID': int}, errors="ignore")
 
-    items = list(combined_df.T.to_dict().values())
+        items = combine_with_af_email(orchestrator_connection=orchestrator_connection, item_df=item_df)
+
     return items
 
 
