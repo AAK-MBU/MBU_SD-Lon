@@ -24,7 +24,10 @@ def get_items(orchestrator_connection: OrchestratorConnection):
     """
     # Unpack from connection
     oc_args = json.loads(orchestrator_connection.process_arguments)
-    process = oc_args.get("process", ValueError("No process defined in process arguments")).upper()
+    process = oc_args.get("process", None).upper()
+
+    if not process:
+        raise ValueError(f"No process defined in process arguments: {oc_args}")
 
     # Set variables for function call
     process_procedure = PROCESS_PROCEDURE_DICT.get(
@@ -34,7 +37,7 @@ def get_items(orchestrator_connection: OrchestratorConnection):
     if not process_procedure:
         raise ValueError(f"Process procedure for {process} not defined in dictionary")
 
-    stored_procedure = process_procedure.get(
+    control_procedure = process_procedure.get(
         "procedure",
         ValueError(f"No stored procedure for {process_procedure} in dictionary")
     )
@@ -43,10 +46,10 @@ def get_items(orchestrator_connection: OrchestratorConnection):
         ValueError(f"No parameters for {process_procedure} in dictionary")
     )
 
-    orchestrator_connection.log_trace(f"Running {process = }, procedure {stored_procedure.__name__}, {procedure_params = }")
+    orchestrator_connection.log_trace(f"Running {process = }, procedure {control_procedure.__name__}, {procedure_params = }")
 
     # Get items for process
-    items = stored_procedure(**procedure_params, orchestrator_connection=orchestrator_connection)
+    items = control_procedure(**procedure_params, orchestrator_connection=orchestrator_connection)
 
     # Set dynamic queuename in connection
     orchestrator_connection.queue_name = f"{QUEUE_NAME}.{process}"
