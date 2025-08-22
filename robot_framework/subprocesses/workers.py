@@ -109,14 +109,19 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
 
     if process_type == "KV4":
 
+        instruction_link = "https://aarhuskommune.sharepoint.com/sites/IntranetDocumentSite/Intranetdokumentbibliotek/Forms/Seneste%20dokumenter.aspx?id=%2Fsites%2FIntranetDocumentSite%2FIntranetdokumentbibliotek%2FL%C3%A5st%20p%C3%A5%20grundl%C3%B8nstrin%2Epdf&parent=%2Fsites%2FIntranetDocumentSite%2FIntranetdokumentbibliotek&p=true&ga=1"
+
         text = (
-            "<h4>Følgende leder har ikke fået fastlåst sin anciennitetsdato:</h4>"
+            "<h4>Følgende leder har ikke fået fastlåst sin anciennitetsdato til dato 31.12.9999:</h4>"
             + f"<p>Tjenestenummer: {person_id}</p>"
             + f"<p>Navn: {person_name}</p>"
-            + f"<p>Afdeling: {afdeling} ({enhedsnavn})</p>"
+            + f"<p>Afdeling: {afdeling}</p>"
             + f"<p>SD institutionskode: {sd_inst_kode}</p>"
             + f"<p>Registreret overenskomst: {overenskomst}</p>"
-        )
+            + f"<p>Du kan finde vejledningen <a href={instruction_link}>her</a>"
+            + "<p>Bliver datoen ikke rettet til 31.12.9999, vil lederens grundlønstrin stige med et løntrin hvert år. <br>"
+            + "OBS hvis der er tilknyttet et grundlønstillæg til stillingen skal du huske at oprette dette manuelt (måske er tillægget allerede oprettet, se lønsammensætning)."
+        )  
 
         subject = "Manglende låst anciennitet på leder"
 
