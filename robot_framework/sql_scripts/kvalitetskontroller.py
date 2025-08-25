@@ -6,7 +6,7 @@ from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConn
 
 from robot_framework.subprocesses.helper_functions import get_items_from_query
 
-from robot_framework.worker_data.KV2_data import tillaeg_pairs
+from robot_framework.worker_data.kv2_data import tillaeg_pairs
 
 
 def kv1(overenskomst: int, orchestrator_connection: OrchestratorConnection):
