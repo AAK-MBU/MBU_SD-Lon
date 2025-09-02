@@ -19,7 +19,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     notification_receiver = oc_args['notification_receiver']
 
     if notification_receiver == "AF":
-        notification_receiver = queue_element.data["AF_email"]
+        notification_receiver = json.loads(queue_element.data)["AF_email"]
 
     # Find and apply worker
     worker = WORKER_MAP.get(notification_type, None)
