@@ -42,13 +42,22 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
     enhedsnavn = element_data.get("Enhedsnavn", None)
 
     if process_type == "KV1":
+        # Inspirationsansættelser
+        instruction_link = "https://intranet.aarhuskommune.dk/documents/146889"
 
         text = (
-            "<h4>Følgende inspirationsansættelse er registreret på en XA SD-institutionskode:</h4>"
+            "<p>Der er ved en fejl blevet oprettet en inspirationsansættelse på en XA enhed i jeres Administrative Fællesskab. <br>"
+            + "Inspirationsansættelser skal udelukkende oprettes på XC enheder. <br>"
+            + "Du skal derfor slette ansættelsen på XA enheden og oprette ansættelsen på ny på den korrekte XC enhed"
+            + "- se nedenstående.</p>"
+            + "-"*100
+            + "<h4>Følgende inspirationsansættelse er registreret på en XA SD-institutionskode:</h4>"
             + f"<p>Tjenestenummer: {person_id}</p>"
             + f"<p>Afdeling: {afdeling}</p>"
             + f"<p>SD institutionskode: {sd_inst_kode}</p>"
             + f"<p>Registreret overenskomst: {overenskomst}</p>"
+            + f'<p>Du kan finde vejledningen til "Inspirationsansættelser" på <a href={instruction_link}>dette link</a> (AARHUSINTRA)<p>'
+            + "-"*100
         )
 
         subject = "Inspirationsansættelse på XA institution"
@@ -56,6 +65,7 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
         return text, subject
 
     if process_type == "KV2":
+        # Manglende tillægsnummer
         # Get element info
         # Initialize found pair
         found_number = int(element_data["Tillægsnummer"])
@@ -89,6 +99,7 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
         subject = "Manglende tillægsnummer i ansættelse"
 
     if process_type in ("KV3", "KV3-DEV"):
+        # Forker overenskomst skole/dagtilbud
 
         afdtype_txt = element_data["afdtype_txt"]
         # exp_ovk = find_match_ovk(overenskomst)
@@ -107,7 +118,7 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
         subject = "Fejl i SD-overenskomst"
 
     if process_type == "KV4":
-
+        # Manglende låst anciennitetsdato
         instruction_link = "https://aarhuskommune.sharepoint.com/sites/IntranetDocumentSite/Intranetdokumentbibliotek/Forms/Seneste%20dokumenter.aspx?id=%2Fsites%2FIntranetDocumentSite%2FIntranetdokumentbibliotek%2FL%C3%A5st%20p%C3%A5%20grundl%C3%B8nstrin%2Epdf&parent=%2Fsites%2FIntranetDocumentSite%2FIntranetdokumentbibliotek&p=true&ga=1"
 
         text = (
