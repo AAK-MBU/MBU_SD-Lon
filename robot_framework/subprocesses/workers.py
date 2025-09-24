@@ -1,27 +1,36 @@
 """Module to contain different workers"""
+
 import json
 import re
 
 from itk_dev_shared_components.smtp.smtp_util import send_email
 from OpenOrchestrator.database.queues import QueueElement
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
-
+from robot_framework.subprocesses.helper_functions import (
+    find_pair_info,  # , find_match_ovk
+)
 from robot_framework.worker_data.kv2_data import tillaeg_pairs
-from robot_framework.subprocesses.helper_functions import find_pair_info  # , find_match_ovk
 
 
-def send_mail(orchestrator_connection: OrchestratorConnection, process_type: str, notification_receiver: str, queue_element: QueueElement):
+def send_mail(
+    orchestrator_connection: OrchestratorConnection,
+    process_type: str,
+    notification_receiver: str,
+    queue_element: QueueElement,
+):
     """Function to send email to inputted receiver"""
     receiver = notification_receiver
-    email_body, email_subject = construct_worker_text(process_type=process_type, queue_element=queue_element)
+    email_body, email_subject = construct_worker_text(
+        process_type=process_type, queue_element=queue_element
+    )
 
     send_email(
         receiver=receiver,
         sender=orchestrator_connection.get_constant("e-mail_noreply").value,
         subject=email_subject,
         body=email_body,
-        smtp_server=orchestrator_connection.get_constant('smtp_server').value,
-        smtp_port=orchestrator_connection.get_constant('smtp_port').value,
+        smtp_server=orchestrator_connection.get_constant("smtp_server").value,
+        smtp_port=orchestrator_connection.get_constant("smtp_port").value,
         html_body=True,
     )
 
@@ -50,14 +59,14 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
             + "Inspirationsansættelser skal udelukkende oprettes på XC enheder. <br>"
             + "Du skal derfor slette ansættelsen på XA enheden og oprette ansættelsen på ny på den korrekte XC enhed"
             + "- se nedenstående.</p>"
-            + "-"*100
+            + "-" * 100
             + "<h4>Følgende inspirationsansættelse er registreret på en XA SD-institutionskode:</h4>"
             + f"<p>Tjenestenummer: {person_id}</p>"
             + f"<p>Afdeling: {afdeling}</p>"
             + f"<p>SD institutionskode: {sd_inst_kode}</p>"
             + f"<p>Registreret overenskomst: {overenskomst}</p>"
-            + f'<p>Du kan finde vejledningen til "Inspirationsansættelser" på <a href={instruction_link}>dette link</a> (AARHUSINTRA)<p>'
-            + "-"*100
+            + f'<p>Du kan finde vejledningen til "Inspirationsansættelser" på <a href={instruction_link}>dette link</a> (AARHUSINTRA)</p>'
+            + "-" * 100
         )
 
         subject = "Inspirationsansættelse på XA institution"
@@ -80,7 +89,9 @@ def construct_worker_text(process_type: str, queue_element: QueueElement):
             match_set = find_pair_info(pair, found_number)
             if match_set:
                 match_number, match_name = match_set
-                match_type = re.search(pattern=r"([A|B])-(?!.*-)", string=match_name).group(1)
+                match_type = re.search(
+                    pattern=r"([A|B])-(?!.*-)", string=match_name
+                ).group(1)
 
         # Construct message
         text = (
