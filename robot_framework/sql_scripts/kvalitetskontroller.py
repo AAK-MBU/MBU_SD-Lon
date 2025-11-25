@@ -211,6 +211,10 @@ def kv3(
     )
     items_df = pd.DataFrame(items)
 
+    if items_df.empty:
+        orchestrator_connection.log_trace("KV3: No wrong overenskomster found. Returning empty result.")
+        return []
+
     # Combine with other information
     combined_df = pd.merge(
         left=combined_df, right=items_df, left_on="SDafdID", right_on="Afdeling"
